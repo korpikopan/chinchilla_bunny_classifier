@@ -1,23 +1,22 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+import os
 
-#os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 def bunny_or_chinch(image):
-    with tf.compat.v1.gfile.FastGFile(image, 'rb') as f:
-        #^ Image being read
-        data = f.read()
+    data = image
     #^ Data from image file
     # 
     # Loads label file, strips off carriage return
-    classes = [line.rstrip() for line in tf.compat.v1.gfile.GFile("rongeurs_labels.txt")]
+    classes = [line.rstrip() for line in tf.gfile.GFile("rongeurs_labels.txt")]
     # Unpersists graph from file
     
-    with tf.compat.v1.gfile.FastGFile("rongeurs_graph.pb", 'rb') as inception_graph:
-        definition = tf.compat.v1.GraphDef()
+    with tf.gfile.FastGFile("rongeurs_graph.pb", 'rb') as inception_graph:
+        definition = tf.GraphDef()
         definition.ParseFromString(inception_graph.read())
         _ = tf.import_graph_def(definition, name='')
 
-    with tf.compat.v1.Session() as session:
+    with tf.Session() as session:
         final_result = []
         tensor = session.graph.get_tensor_by_name('final_result:0')
         #^ Feeding data as input and find the first prediction
@@ -27,7 +26,6 @@ def bunny_or_chinch(image):
         for type in top_results:
             lapin_or_chinchilla = classes[type]
             score = result[0][type]
-            print('%-20s : %.5f' % (lapin_or_chinchilla, score))
             final_result.append((lapin_or_chinchilla, score))
     
     return final_result
