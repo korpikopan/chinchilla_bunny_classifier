@@ -2,3 +2,6 @@ tensorflow
 pandas
 numpy
 openpyxl
+streamlit
+numpy
+streamlit-option-menu
